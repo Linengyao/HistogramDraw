@@ -1,11 +1,68 @@
-﻿// HistogramDraw.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+﻿// HistogramDisplay.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 
 #include <iostream>
-
+#include<opencv.hpp>
+using namespace cv;
 int main()
 {
-    std::cout << "Hello World!\n";
+	float hisogram_B[256];
+	float hisogram_G[256];
+	float hisogram_R[256];
+	float hisogram[256];
+	float pixel[256];
+	cv::Mat srcMat = imread("E:\\桌面壁纸\\1.jpg");
+	int height = srcMat.rows; //行数
+	int width = srcMat.cols;//每行元素数量
+
+	//初始化
+	for (int i = 0; i < 256; i++)
+	{
+		hisogram_B[i] = 0;
+		hisogram_G[i] = 0;
+		hisogram_B[i] = 0;
+	}
+
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			hisogram_B[srcMat.at<Vec3b>(j, i)[0]]++;
+			hisogram_G[srcMat.at<Vec3b>(j, i)[1]]++;
+			hisogram_R[srcMat.at<Vec3b>(j, i)[2]]++;
+
+		}//单行处理结束
+	}
+
+	//归一化
+	for (int i = 0; i < 256; i++)
+	{
+		hisogram_B[i] = hisogram_B[i] / (height*width);
+		hisogram_G[i] = hisogram_G[i] / (height*width);
+		hisogram_R[i] = hisogram_R[i] / (height*width);
+		//std::cout << hisogram_B[i] << std::endl;
+	}
+
+	//绘制直方图
+	cv::Mat disMat = imread("E:\\桌面壁纸\\直方图.png");
+	int disMat_height = disMat.rows;
+	int disMat_width = disMat.cols;
+	cv::Point pt1;
+	cv::Point pt2;
+	pt1.x = 0;
+	pt1.y = disMat_height - hisogram_B[0] * disMat_height;
+	for (int i = 1; i < 256; i++)
+	{
+		pt2.x = i;
+		pt2.y = disMat_height - hisogram_B[i] * disMat_height/** (height*width)*/;
+		line(disMat, pt1, pt2, CV_RGB(255, 0, 0), 1, 8, 0);
+		pt1.x = pt2.x;
+		pt1.y = pt2.y;
+	}
+
+	imshow("disMat", disMat);
+	waitKey(0);
+	//std::cout << "Hello World!\n";
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
